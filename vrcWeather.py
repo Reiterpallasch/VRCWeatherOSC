@@ -1,19 +1,76 @@
 import argparse
 import sys
+import pyowm
+import requests
+import time
+#from pyowm.owm import OWM
 from datetime import datetime
+from datetime import time
 from _thread import *
 from pythonosc import udp_client
 
+
+APIKEY = '50cabeab33746df4aef02f0a7ffb1778'
+zip ='38017'
+cCode = 'US'
+
+#broken? resorting to normal api calls
+# OpenWMap=pyowm.OWM(APIKEY)
+# Weather = OpenWMap.weather_at_place('Collierville')
+# Data=Weather.get_weather()
+# temp = Data.get_temperature(unit='fahrenheit')
+
+#Tesing Responses
+# response = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
+# print(response.json())
+# respJson = response.json()
+# tempurature = respJson["main"]
+# print(tempurature["temp"])
+
+
+#Check time ranges
+def timeBetween(begin,end,current):
+    if begin < end:
+        return current >= begin and current <= end
+    else:
+        return current >= begin or current <= end
+
+
 #function to check the time of day, specifically to add or remove sunglasses
-#Under Construction 
+#Under Construction - will add cloud coverage
 def timeOfDay():
     while True:
-        localTime = datetime.now()
-        client.send_message("/avatar/parameters/sunglasses",True)
-
+        localTime = datetime.now().time()
+        responseC = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
+        cJson = responseC.json()
+        cloudVal = float(cJson["clouds"]["all"])
+        if (cloudVal >= float(70.0)) or timeBetween(time(19,00),time(8,00),localTime) == True:
+            client.send_message("/avatar/parameters/removesunglasses",True)
+        else:
+            client.send_message("/avatar/parameters/removesunglasses",False)
+        
+        time.sleep(30)
     return
+        
 
 
+#Get the temperature - Will send a float to affect your avatar based on temperature
+#I have not figured out quite yet how to determine if to use F or C
+def getTemp():
+    while True:
+        responseT = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
+        tJson = responseT.json()
+        tempuratureVal = float(tJson["main"]["temp"])
+        tempuratureValNormal = float(tempuratureVal/100)
+        if tempuratureValNormal >= 1:
+            tempuratureValNormal = .99
+        client.send_message("/avatar/parameters/skinTone",tempuratureValNormal)
+        if(tempuratureVal > float(82.0)):
+            client.send_message("/avatar/parameters/sweat",True)
+        else:
+            client.send_message("/avatar/parameters/sweat",False)
+        time.sleep(30)
+    return
 
 #Begin the OSC server
 if __name__ == "__main__":
@@ -26,6 +83,13 @@ if __name__ == "__main__":
 
 #Start the necessary threads for functions affecting avatars 
 start_new_thread(timeOfDay)
+start_new_thread(getTemp)
+
+#Some sqlite error going on here
+# owm = OWM('50cabeab33746df4aef02f0a7ffb1778')
+# reg = owm.city_id_registry()
+# list_of_tuples = reg.ids_for('Memphis', matching='exact')
+# print(list_of_tuples)
 
 #Can use this input, but really just here to maintain application running
 while True:
