@@ -4,8 +4,8 @@ import pyowm
 import requests
 import time
 #from pyowm.owm import OWM
-from datetime import datetime
-from datetime import time
+from datetime import datetime, time
+import time as t2
 from _thread import *
 from pythonosc import udp_client
 
@@ -44,12 +44,12 @@ def timeOfDay():
         responseC = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
         cJson = responseC.json()
         cloudVal = float(cJson["clouds"]["all"])
-        if (cloudVal >= float(70.0)) or timeBetween(time(19,00),time(8,00),localTime) == True:
+        if (cloudVal >= float(70.0)) or timeBetween(time(20,15),time(8,00),localTime) == True:
             client.send_message("/avatar/parameters/removesunglasses",True)
         else:
             client.send_message("/avatar/parameters/removesunglasses",False)
         
-        time.sleep(30)
+        t2.sleep(30)
     return
         
 
@@ -64,12 +64,13 @@ def getTemp():
         tempuratureValNormal = float(tempuratureVal/100)
         if tempuratureValNormal >= 1:
             tempuratureValNormal = .99
-        client.send_message("/avatar/parameters/skinTone",tempuratureValNormal)
+        if tempuratureValNormal >= .75:
+            client.send_message("/avatar/parameters/skinTone",tempuratureValNormal)
         if(tempuratureVal > float(82.0)):
             client.send_message("/avatar/parameters/sweat",True)
         else:
             client.send_message("/avatar/parameters/sweat",False)
-        time.sleep(30)
+        t2.sleep(30)
     return
 
 #Begin the OSC server
@@ -82,8 +83,8 @@ if __name__ == "__main__":
     client = udp_client.SimpleUDPClient(args.ip, args.port)
 
 #Start the necessary threads for functions affecting avatars 
-start_new_thread(timeOfDay)
-start_new_thread(getTemp)
+start_new_thread(timeOfDay,())
+start_new_thread(getTemp,())
 
 #Some sqlite error going on here
 # owm = OWM('50cabeab33746df4aef02f0a7ffb1778')
@@ -93,6 +94,9 @@ start_new_thread(getTemp)
 
 #Can use this input, but really just here to maintain application running
 while True:
-    key_input = input("Waiting for key between -1 and 1: ")
-    key_input = float(key_input)
-    client.send_message("/input/Vertical", key_input)
+    key_input1 = input("Press q to close: ")
+    # key_input = input("Waiting for key between -1 and 1: ")
+    # key_input = float(key_input)
+    # client.send_message("/input/Vertical", key_input)
+    if key_input1 == "q":
+        break
