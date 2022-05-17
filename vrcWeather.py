@@ -55,7 +55,8 @@ def timeOfDay():
 
 
 #Get the temperature - Will send a float to affect your avatar based on temperature
-#I have not figured out quite yet how to determine if to use F or C
+#I have not figured out quite yet how to determine if to use F or C - wont matter once normalized (matters now) plus can change request url to metric with
+# &units=metric instead of &units=imperial
 def getTemp():
     while True:
         responseT = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
