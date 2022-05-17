@@ -44,7 +44,7 @@ def timeOfDay():
         responseC = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
         cJson = responseC.json()
         cloudVal = float(cJson["clouds"]["all"])
-        if (cloudVal >= float(70.0)) or timeBetween(time(20,15),time(8,00),localTime) == True:
+        if (cloudVal >= float(70.0)) or timeBetween(time(1,30),time(8,00),localTime) == True:
             client.send_message("/avatar/parameters/removesunglasses",True)
         else:
             client.send_message("/avatar/parameters/removesunglasses",False)
@@ -66,6 +66,8 @@ def getTemp():
             tempuratureValNormal = .99
         if tempuratureValNormal >= .75:
             client.send_message("/avatar/parameters/skinTone",tempuratureValNormal)
+        else:
+            client.send_message("/avatar/parameters/skinTone",0.00)
         if(tempuratureVal > float(82.0)):
             client.send_message("/avatar/parameters/sweat",True)
         else:
@@ -94,7 +96,7 @@ start_new_thread(getTemp,())
 
 #Can use this input, but really just here to maintain application running
 while True:
-    key_input1 = input("Press q to close: ")
+    key_input1 = input("Type q and press enter to close: ")
     # key_input = input("Waiting for key between -1 and 1: ")
     # key_input = float(key_input)
     # client.send_message("/input/Vertical", key_input)
