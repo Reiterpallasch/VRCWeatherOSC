@@ -8,6 +8,9 @@ from datetime import datetime, time
 import time as t2
 from _thread import *
 from pythonosc import udp_client
+from typing import List
+from pythonosc import dispatcher
+from pythonosc import osc_server
 
 
 APIKEY = '50cabeab33746df4aef02f0a7ffb1778'
@@ -27,6 +30,8 @@ cCode = 'US'
 # tempurature = respJson["main"]
 # print(tempurature["temp"])
 
+def printdata(address: str, *osc_arguments: List[str]):
+    print(address + "  " + str(osc_arguments[0]))
 
 #Check time ranges
 def timeBetween(begin,end,current):
@@ -48,7 +53,8 @@ def timeOfDay():
             client.send_message("/avatar/parameters/removesunglasses",True)
         else:
             client.send_message("/avatar/parameters/removesunglasses",False)
-        
+        #Printing to see if server and client may exist simultaneously
+        print("Success")
         t2.sleep(30)
     return
         
@@ -88,6 +94,19 @@ if __name__ == "__main__":
 #Start the necessary threads for functions affecting avatars 
 start_new_thread(timeOfDay,())
 start_new_thread(getTemp,())
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip", default="127.0.0.1", help="The ip to listen on")
+    parser.add_argument("--port", type=int, default=9001, help="The port to listen on")
+    args = parser.parse_args()
+
+    dispatcher = dispatcher.Dispatcher()
+    dispatcher.map("/*", printdata)
+
+    server = osc_server.ThreadingOSCUDPServer((args.ip, args.port), dispatcher)
+    print("Serving on {}".format(server.server_address))
+    server.serve_forever()
 
 #Some sqlite error going on here
 # owm = OWM('50cabeab33746df4aef02f0a7ffb1778')
