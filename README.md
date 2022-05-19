@@ -13,4 +13,4 @@ Credit to https://openweathermap.org/ for API support
 
 Note it is best to make your own api key and modify the the code to accept it instead
 
-Line 12 through 13 you can change your zip code and country code.
+Lines 14 and 15 you can change your zip code and country code.
