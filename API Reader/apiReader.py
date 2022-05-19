@@ -8,5 +8,8 @@ cCode = 'US'
 response = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
 print(response.json())
 respJson = response.json()
-tempurature = respJson["main"]
-print(tempurature["temp"])
+tempurature = respJson['weather']
+print(tempurature[0]['description'])
+sky = tempurature[0]['description']
+last4 = sky[len(sky)-4:len(sky)]
+print(last4)

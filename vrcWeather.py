@@ -38,8 +38,11 @@ def timeOfDay():
         responseC = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
         cJson = responseC.json()
         cloudVal = float(cJson["clouds"]["all"])
+        sky = cJson['weather']
+        skyStat = sky[0]['description']
+        last4 = skyStat[len(skyStat)-4:len(skyStat)]
 
-        if (cloudVal >= float(70.0)) or timeBetween(time(0,00),time(8,00),localTime) == True:
+        if (cloudVal >= float(70.0)) or (timeBetween(time(0,00),time(8,00),localTime) == True) or last4 == "rain":
             client.send_message("/avatar/parameters/removesunglasses",True)
         else:
             client.send_message("/avatar/parameters/removesunglasses",False)
