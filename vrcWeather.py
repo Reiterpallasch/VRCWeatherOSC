@@ -47,6 +47,11 @@ def timeOfDay():
         else:
             client.send_message("/avatar/parameters/removesunglasses",False)
 
+        if (timeBetween(time(0,00),time(8,00),localTime) == True):
+            client.send_message("/avatar/parameters/removeHat",True)
+        else:
+            client.send_message("/avatar/parameters/removeHat",False)
+
         t2.sleep(15)
         
 # Get the temperature - Will send a float to affect your avatar based on temperature
