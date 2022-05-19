@@ -9,45 +9,50 @@ from typing import List
 from pythonosc import dispatcher
 from pythonosc import osc_server
 
-# Used variables
+
 APIKEY = '50cabeab33746df4aef02f0a7ffb1778'
 zip ='38017'
 cCode = 'US'
-ip = "127.0.0.1"
-clientPort = 9000
-serverPort = 9001
 
-# Define OSC Client
-client = udp_client.SimpleUDPClient(ip, clientPort)
+#Tesing Responses
+# response = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
+# print(response.json())
+# respJson = response.json()
+# tempurature = respJson["main"]
+# print(tempurature["temp"])
 
 def printdata(address: str, *osc_arguments: List[str]):
     print(address + "  " + str(osc_arguments[0]))
 
-# Check time ranges
+#Check time ranges
 def timeBetween(begin,end,current):
     if begin < end:
         return current >= begin and current <= end
     else:
         return current >= begin or current <= end
 
-# function to check the time of day, specifically to add or remove sunglasses
-# Under Construction - will add cloud coverage
+
+#function to check the time of day, specifically to add or remove sunglasses
+#Under Construction - will add cloud coverage
 def timeOfDay():
     while True:
         localTime = datetime.now().time()
         responseC = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
         cJson = responseC.json()
         cloudVal = float(cJson["clouds"]["all"])
-
         if (cloudVal >= float(70.0)) or timeBetween(time(0,00),time(8,00),localTime) == True:
             client.send_message("/avatar/parameters/removesunglasses",True)
         else:
             client.send_message("/avatar/parameters/removesunglasses",False)
-
+        #Printing to see if server and client may exist simultaneously
+        #print("Success")
         t2.sleep(15)
+    return
         
-# Get the temperature - Will send a float to affect your avatar based on temperature
-# I have not figured out quite yet how to determine if to use F or C - wont matter once normalized (matters now) plus can change request url to metric with
+
+
+#Get the temperature - Will send a float to affect your avatar based on temperature
+#I have not figured out quite yet how to determine if to use F or C - wont matter once normalized (matters now) plus can change request url to metric with
 # &units=metric instead of &units=imperial
 def getTemp():
     while True:
@@ -70,22 +75,51 @@ def getTemp():
             client.send_message("/avatar/parameters/sweat",False)
 
         t2.sleep(30)
+    return
 
-# Begin the OSC server
+#Begin the OSC server
 def server(dispatcher):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip", default="127.0.0.1", help="The ip to listen on")
+    parser.add_argument("--port", type=int, default=9001, help="The port to listen on")
+    args = parser.parse_args()
+
     dispatcher = dispatcher.Dispatcher()
     dispatcher.map("/avatar/parameters/*", printdata)
 
-    server = osc_server.ThreadingOSCUDPServer((ip, serverPort), dispatcher)
+    server = osc_server.ThreadingOSCUDPServer((args.ip, args.port), dispatcher)
     print("Serving on {}".format(server.server_address))
     server.serve_forever()
 
-# Start the necessary threads for functions affecting avatars 
-start_new_thread(timeOfDay,())
-start_new_thread(getTemp,())
-start_new_thread(server(dispatcher),())
+#Define OSC Client
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip", default="127.0.0.1",help="The ip of the OSC server")
+    parser.add_argument("--port", type=int, default=9000,help="The port the OSC server is listening on")
+    args = parser.parse_args()
 
-# Can use this input, but really just here to maintain application running
+    client = udp_client.SimpleUDPClient(args.ip, args.port)
+
+    # Start the necessary threads for functions affecting avatars 
+    start_new_thread(timeOfDay,())
+    start_new_thread(getTemp,())
+    start_new_thread(server(dispatcher),())
+
+# Moved to server(dispatcher) method
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument("--ip", default="127.0.0.1", help="The ip to listen on")
+#     parser.add_argument("--port", type=int, default=9001, help="The port to listen on")
+#     args = parser.parse_args()
+
+#     dispatcher = dispatcher.Dispatcher()
+#     dispatcher.map("/avatar/parameters/*", printdata)
+
+#     server = osc_server.ThreadingOSCUDPServer((args.ip, args.port), dispatcher)
+#     print("Serving on {}".format(server.server_address))
+#     server.serve_forever()
+
+#Can use this input, but really just here to maintain application running
 # while True:
 #     key_input1 = input("Type q and press enter to close: ")
 #     # key_input = input("Waiting for key between -1 and 1: ")
