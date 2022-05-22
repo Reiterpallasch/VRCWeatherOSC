@@ -7,6 +7,7 @@ Python 3.5+ (Personally using 3.10)
 From cmd prompt
 
 1. For OSC Support - pip install python-osc
+2. For request handling - pip install requests
 
 
 Credit to https://openweathermap.org/ for API support
