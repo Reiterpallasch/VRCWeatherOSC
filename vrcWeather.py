@@ -43,16 +43,19 @@ def timeOfDay():
         last4 = skyStat[len(skyStat)-4:len(skyStat)]
 
         if (cloudVal >= float(70.0)) or (timeBetween(time(0,00),time(8,00),localTime) == True) or last4 == "rain":
-            client.send_message("/avatar/parameters/removesunglasses",True)
+            client.send_message("/avatar/parameters/removesunglasses", True)
         else:
-            client.send_message("/avatar/parameters/removesunglasses",False)
+            client.send_message("/avatar/parameters/removesunglasses", False)
 
-        if (timeBetween(time(0,00),time(8,00),localTime) == True):
-            client.send_message("/avatar/parameters/removeHat",True)
+        t2.sleep(1)
+        print(timeBetween(time(0,00),time(8,00),localTime))
+        if timeBetween(time(0,00),time(8,00),localTime) == True:
+            client.send_message("/avatar/parameters/hat", True)
         else:
-            client.send_message("/avatar/parameters/removeHat",False)
+            client.send_message("/avatar/parameters/hat", False)
 
         t2.sleep(15)
+    return
         
 # Get the temperature - Will send a float to affect your avatar based on temperature
 # I have not figured out quite yet how to determine if to use F or C - wont matter once normalized (matters now) plus can change request url to metric with
@@ -78,7 +81,7 @@ def getTemp():
             client.send_message("/avatar/parameters/sweat",False)
 
         t2.sleep(30)
-
+    return
 # Begin the OSC server
 def server(dispatcher):
     dispatcher = dispatcher.Dispatcher()
