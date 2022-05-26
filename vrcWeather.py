@@ -47,12 +47,15 @@ def timeOfDay():
         else:
             client.send_message("/avatar/parameters/removesunglasses", False)
 
+
         t2.sleep(1)
         print(timeBetween(time(0,00),time(8,00),localTime))
-        if timeBetween(time(0,00),time(8,00),localTime) == True:
+        if timeBetween(time(0,00),time(8,00),localTime) == True and last4 != "rain":
             client.send_message("/avatar/parameters/hat", True)
+            client.send_message("/avatar/parameters/rain", False)
         else:
             client.send_message("/avatar/parameters/hat", False)
+            client.send_message("/avatar/parameters/rain", True)
 
         t2.sleep(15)
     return
