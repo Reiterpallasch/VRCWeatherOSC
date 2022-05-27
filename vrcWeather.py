@@ -30,9 +30,9 @@ def timeBetween(begin,end,current):
     else:
         return current >= begin or current <= end
 
-# function to check the time of day, specifically to add or remove sunglasses
+# Apply weather effects
 # Under Construction - will add cloud coverage
-def timeOfDay():
+def weatherEffects():
     while True:
         localTime = datetime.now().time()
         responseC = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
@@ -63,28 +63,14 @@ def timeOfDay():
 # Get the temperature - Will send a float to affect your avatar based on temperature
 # I have not figured out quite yet how to determine if to use F or C - wont matter once normalized (matters now) plus can change request url to metric with
 # &units=metric instead of &units=imperial
+# Used for temperature based effects
 def getTemp():
-    while True:
-        responseT = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
-        tJson = responseT.json()
-        tempuratureVal = float(tJson["main"]["temp"])
-        tempuratureValNormal = float(tempuratureVal/100)
 
-        if tempuratureValNormal >= 1:
-            tempuratureValNormal = .99
+    responseT = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+zip+","+cCode+"&appid="+APIKEY+"&units=imperial")
+    tJson = responseT.json()
+    tempuratureVal = float(tJson["main"]["temp"])
+    return tempuratureVal
 
-        if tempuratureValNormal >= .75:
-            client.send_message("/avatar/parameters/skinTone",tempuratureValNormal)
-        else:
-            client.send_message("/avatar/parameters/skinTone",0.00)
-
-        if(tempuratureVal > float(82.0)):
-            client.send_message("/avatar/parameters/sweat",True)
-        else:
-            client.send_message("/avatar/parameters/sweat",False)
-
-        t2.sleep(30)
-    return
 # Begin the OSC server
 def server(dispatcher):
     dispatcher = dispatcher.Dispatcher()
@@ -94,9 +80,31 @@ def server(dispatcher):
     print("Serving on {}".format(server.server_address))
     server.serve_forever()
 
+# Apply Temperature effects
+def tempEffects():
+    while True:
+        temperatureVal = getTemp()
+        temperatureValNormal = float(temperatureVal/100)
+
+        if temperatureValNormal >= 1:
+            temperatureValNormal = .99
+
+        if temperatureValNormal >= .75:
+            client.send_message("/avatar/parameters/skinTone",temperatureValNormal)
+        else:
+            client.send_message("/avatar/parameters/skinTone",0.00)
+
+        if(temperatureVal > float(82.0)):
+            client.send_message("/avatar/parameters/sweat",True)
+        else:
+            client.send_message("/avatar/parameters/sweat",False)
+
+        t2.sleep(30)
+    return
+
 # Start the necessary threads for functions affecting avatars 
-start_new_thread(timeOfDay,())
-start_new_thread(getTemp,())
+start_new_thread(weatherEffects,())
+start_new_thread(tempEffects,())
 start_new_thread(server(dispatcher),())
 
 # Can use this input, but really just here to maintain application running
