@@ -52,10 +52,10 @@ def timeOfDay():
         print(timeBetween(time(0,00),time(8,00),localTime))
         if timeBetween(time(0,00),time(8,00),localTime) == True and last4 != "rain":
             client.send_message("/avatar/parameters/hat", True)
-            client.send_message("/avatar/parameters/rain", False)
+            client.send_message("/avatar/parameters/rain", True)
         else:
             client.send_message("/avatar/parameters/hat", False)
-            client.send_message("/avatar/parameters/rain", True)
+            client.send_message("/avatar/parameters/rain", False)
 
         t2.sleep(15)
     return
