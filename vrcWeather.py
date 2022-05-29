@@ -63,8 +63,11 @@ def weatherEffects():
             client.send_message("/avatar/parameters/thunder", True)
         else:
             client.send_message("/avatar/parameters/hat", False)
-            client.send_message("/avatar/parameters/rain", False)
-            thunder()
+            if last4 == "rain":
+                client.send_message("/avatar/parameters/rain", False)
+                thunder()
+            else:
+                client.send_message("/avatar/parameters/rain", True)
 
         t2.sleep(15)
     return
