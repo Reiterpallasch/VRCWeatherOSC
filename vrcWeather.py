@@ -17,6 +17,9 @@ ip = "127.0.0.1"
 clientPort = 9000
 serverPort = 9001
 
+# Flag to later be used with listening server to apply breath effects on certain visemes
+coldFlag = False
+
 # Define OSC Client
 client = udp_client.SimpleUDPClient(ip, clientPort)
 
@@ -105,16 +108,25 @@ def tempEffects():
 
         temperatureValNormal = float(temperatureVal/100)
 
-        # Start skin tine above a certain temp
+        # Start skin tone at a certain temp
+        # Hot
         if temperatureValNormal >= .75:
+            client.send_message("/avatar/parameters/skinTone2",0.00)
             tempHot = float((temperatureValNormal - .75)/(1 - .75))
             # Radial resets at 100?
             if tempHot >= 1:
                 tempHot = .99
             client.send_message("/avatar/parameters/skinTone",tempHot)
+        #Cold
+        elif temperatureValNormal <= .55:
+            client.send_message("/avatar/parameters/skinTone",0.00)
+            # Need to invert values to handle positive radial
+            tVNInverse = 1 - temperatureValNormal
+            tempCold = float((tVNInverse - .45)/(1 - .45))
+            client.send_message("/avatar/parameters/skinTone2",tempCold)
         else:
             client.send_message("/avatar/parameters/skinTone",0.00)
-
+            client.send_message("/avatar/parameters/skinTone2",0.00)
         # Sweat above a certain value
         if(temperatureVal > float(82.0)):
             client.send_message("/avatar/parameters/sweat",True)
