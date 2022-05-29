@@ -49,14 +49,18 @@ def weatherEffects():
         skyStat = sky[0]['description']
         last4 = skyStat[len(skyStat)-4:len(skyStat)]
 
+        #Remove sunglasses
         if (cloudVal >= float(70.0)) or (timeBetween(time(0,00),time(8,00),localTime) == True) or last4 == "rain":
             client.send_message("/avatar/parameters/removesunglasses", True)
         else:
             client.send_message("/avatar/parameters/removesunglasses", False)
 
 
-        t2.sleep(1)
+        t2.sleep(.5)
+        # Sanity check print
         print(timeBetween(time(0,00),time(8,00),localTime))
+
+        # Remove hat
         if timeBetween(time(0,00),time(8,00),localTime) == True and last4 != "rain":
             client.send_message("/avatar/parameters/hat", True)
             client.send_message("/avatar/parameters/rain", True)
@@ -96,16 +100,22 @@ def server(dispatcher):
 def tempEffects():
     while True:
         temperatureVal = getTemp()
+        if temperatureVal > 100:
+            temperatureVal = 100
+
         temperatureValNormal = float(temperatureVal/100)
 
-        if temperatureValNormal >= 1:
-            temperatureValNormal = .99
-
+        # Start skin tine above a certain temp
         if temperatureValNormal >= .75:
-            client.send_message("/avatar/parameters/skinTone",temperatureValNormal)
+            tempHot = float((temperatureValNormal - .75)/(1 - .75))
+            # Radial resets at 100?
+            if tempHot >= 1:
+                tempHot = .99
+            client.send_message("/avatar/parameters/skinTone",tempHot)
         else:
             client.send_message("/avatar/parameters/skinTone",0.00)
 
+        # Sweat above a certain value
         if(temperatureVal > float(82.0)):
             client.send_message("/avatar/parameters/sweat",True)
         else:
