@@ -18,13 +18,23 @@ clientPort = 9000
 serverPort = 9001
 
 # Flag to later be used with listening server to apply breath effects on certain visemes
-coldFlag = False
+class flags(object):
+    hotFlag = False
+    coldFlag = False
 
+flagSet = flags()
 # Define OSC Client
 client = udp_client.SimpleUDPClient(ip, clientPort)
 
 def printdata(address: str, *osc_arguments: List[str]):
     print(address + "  " + str(osc_arguments[0]))
+    # Respond to specific outputs
+    if (address + "  " + str(osc_arguments[0])) == "/avatar/parameters/Viseme  0" or (address + "  " + str(osc_arguments[0])) == "/avatar/parameters/Viseme  1":
+        print("found")
+        if flagSet.coldFlag == True:
+            print("Damn it's cold")
+        elif flagSet.hotFlag == True:
+            print("Damn it's hot")
 
 # Check time ranges
 def timeBetween(begin,end,current):
@@ -111,6 +121,7 @@ def tempEffects():
         # Start skin tone at a certain temp
         # Hot
         if temperatureValNormal >= .75:
+            flagSet.hotFlag = True
             client.send_message("/avatar/parameters/skinTone2",0.00)
             tempHot = float((temperatureValNormal - .75)/(1 - .75))
             # Radial resets at 100?
@@ -119,6 +130,7 @@ def tempEffects():
             client.send_message("/avatar/parameters/skinTone",tempHot)
         #Cold
         elif temperatureValNormal <= .55:
+            flagSet.coldFlag = True
             client.send_message("/avatar/parameters/skinTone",0.00)
             # Need to invert values to handle positive radial
             tVNInverse = 1 - temperatureValNormal
@@ -135,6 +147,8 @@ def tempEffects():
 
         t2.sleep(30)
     return
+
+
 
 # Start the necessary threads for functions affecting avatars 
 start_new_thread(weatherEffects,())
