@@ -122,6 +122,7 @@ def tempEffects():
         # Hot
         if temperatureValNormal >= .75:
             flagSet.hotFlag = True
+            flagSet.coldFlag = False
             client.send_message("/avatar/parameters/skinTone2",0.00)
             tempHot = float((temperatureValNormal - .75)/(1 - .75))
             # Radial resets at 100?
@@ -131,12 +132,15 @@ def tempEffects():
         #Cold
         elif temperatureValNormal <= .55:
             flagSet.coldFlag = True
+            flagSet.hotFlag = False
             client.send_message("/avatar/parameters/skinTone",0.00)
             # Need to invert values to handle positive radial
             tVNInverse = 1 - temperatureValNormal
             tempCold = float((tVNInverse - .45)/(1 - .45))
             client.send_message("/avatar/parameters/skinTone2",tempCold)
         else:
+            flagSet.hotFlag = False
+            flagSet.coldFlag = False
             client.send_message("/avatar/parameters/skinTone",0.00)
             client.send_message("/avatar/parameters/skinTone2",0.00)
         # Sweat above a certain value
@@ -147,7 +151,6 @@ def tempEffects():
 
         t2.sleep(30)
     return
-
 
 
 # Start the necessary threads for functions affecting avatars 
