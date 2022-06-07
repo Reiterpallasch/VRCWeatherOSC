@@ -10,7 +10,7 @@ response = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+z
 print(response.json())
 respJson = response.json()
 tempurature = respJson['weather']
-if (tempurature[1]['description']) != NULL:
+if len(tempurature) > 1:
     sky = tempurature[1]['description']
     last4 = sky[len(sky)-4:len(sky)]
     print(last4)
