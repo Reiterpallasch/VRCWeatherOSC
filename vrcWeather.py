@@ -1,4 +1,5 @@
 import argparse
+from asyncio.windows_events import NULL
 import requests
 import time
 from datetime import datetime, time
@@ -59,10 +60,12 @@ def weatherEffects():
         cJson = responseC.json()
         cloudVal = float(cJson["clouds"]["all"])
         sky = cJson['weather']
-        skyStat = sky[0]['description']
-        last4 = skyStat[len(skyStat)-4:len(skyStat)]
-
-        #Remove sunglasses
+        last4 = ""
+        if len(sky) > 1:
+            skyStat = sky[1]['description']
+            last4 = skyStat[len(skyStat)-4:len(skyStat)]
+        #print(last4)
+        # Remove sunglasses
         if (cloudVal >= float(70.0)) or (timeBetween(time(0,00),time(8,00),localTime) == True) or last4 == "rain":
             client.send_message("/avatar/parameters/removesunglasses", True)
         else:
@@ -71,16 +74,16 @@ def weatherEffects():
 
         t2.sleep(.5)
         # Sanity check print
-        print(timeBetween(time(0,00),time(8,00),localTime))
+        #print(timeBetween(time(0,00),time(8,00),localTime))
 
         # Remove hat
-        if timeBetween(time(0,00),time(8,00),localTime) == True and last4 != "rain":
+        if timeBetween(time(0,00),time(8,00),localTime) == True and str(last4) != "rain":
             client.send_message("/avatar/parameters/hat", True)
             client.send_message("/avatar/parameters/rain", True)
             client.send_message("/avatar/parameters/thunder", True)
         else:
             client.send_message("/avatar/parameters/hat", False)
-            if last4 == "rain":
+            if str(last4) == "rain":
                 client.send_message("/avatar/parameters/rain", False)
                 thunder()
             else:

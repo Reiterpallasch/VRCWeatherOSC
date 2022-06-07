@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import requests
 
 APIKEY = '50cabeab33746df4aef02f0a7ffb1778'
@@ -9,7 +10,7 @@ response = requests.get("https://api.openweathermap.org/data/2.5/weather?zip="+z
 print(response.json())
 respJson = response.json()
 tempurature = respJson['weather']
-print(tempurature[0]['description'])
-sky = tempurature[0]['description']
-last4 = sky[len(sky)-4:len(sky)]
-print(last4)
+if (tempurature[1]['description']) != NULL:
+    sky = tempurature[1]['description']
+    last4 = sky[len(sky)-4:len(sky)]
+    print(last4)
