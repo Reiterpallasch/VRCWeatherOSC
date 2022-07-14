@@ -29,7 +29,7 @@ client = udp_client.SimpleUDPClient(ip, clientPort)
 
 def printdata(address: str, *osc_arguments: List[str]):
     print(address + "  " + str(osc_arguments[0]))
-    # Respond to specific outputs
+    # Respond to specific outputs i.e. to get breath effects when talking (in progress)
     if (address + "  " + str(osc_arguments[0])) == "/avatar/parameters/Viseme  0" or (address + "  " + str(osc_arguments[0])) == "/avatar/parameters/Viseme  1":
         print("found")
         if flagSet.coldFlag == True:
